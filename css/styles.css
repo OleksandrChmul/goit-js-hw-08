@@ -1,0 +1,28 @@
+ul {
+	list-style: none;
+}
+.gallery {
+	display: flex;
+	width: 1440px;
+	padding: 24px 156px;
+	box-sizing: border-box;
+	flex-wrap: wrap;
+}
+.gallery-item {
+	width: calc(33.3% - 24px);
+	margin: 12px;
+	overflow: hidden;
+	transition: transform 0.3s ease-in-out;
+}
+
+.gallery-item img {
+	width: 100%;
+	height: auto;
+	display: block;
+}
+.gallery-item:hover {
+	transform: scale(
+		1.1
+	); /* Увеличение высоты на 10%, создавая эффект выпуклости */
+	transition: transform 0.3s ease;
+}

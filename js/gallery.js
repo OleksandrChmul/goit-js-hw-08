@@ -65,6 +65,19 @@ const images = [
 ]
 
 const galleryContainer = document.querySelector('.gallery')
+
+// Створюємо один екземпляр модального вікна за межами циклу
+const modal = basicLightbox.create('', {
+	onShow: () => {
+		document.addEventListener('keydown', handleKeyPress)
+		document.addEventListener('click', handleClickOutside)
+	},
+	onClose: () => {
+		document.removeEventListener('keydown', handleKeyPress)
+		document.removeEventListener('click', handleClickOutside)
+	},
+})
+
 images.forEach(({ preview, original, description }) => {
 	const galleryItem = document.createElement('li')
 	galleryItem.classList.add('gallery-item')
@@ -72,13 +85,9 @@ images.forEach(({ preview, original, description }) => {
 	const galleryLink = document.createElement('a')
 	galleryLink.classList.add('gallery-link')
 	galleryLink.href = original
-	galleryLink.addEventListener('click', event => {
-		event.preventDefault()
-	})
 
 	const galleryImage = document.createElement('img')
 	galleryImage.classList.add('gallery-image')
-
 	galleryImage.src = preview
 	galleryImage.alt = description
 	galleryImage.dataset.source = original
@@ -86,37 +95,35 @@ images.forEach(({ preview, original, description }) => {
 	galleryLink.appendChild(galleryImage)
 	galleryItem.appendChild(galleryLink)
 	galleryContainer.appendChild(galleryItem)
-
-	galleryContainer.addEventListener('click', event => {
-		event.preventDefault()
-		const target = event.target
-		if (target.nodeName === 'IMG') {
-			const largeImageSrc = target.dataset.source
-			console.log('Посилання на велике зображення:', largeImageSrc)
-			const myModal = basicLightbox.create(
-				`<img width="1400" haigth="900" src="${largeImageSrc}">`,
-				{
-					onShow: () => {
-						document.addEventListener('keydown', handleKeyPress)
-					},
-					onClose: () => {
-						document.removeEventListener('keydown', handleKeyPress)
-					},
-				}
-			)
-			myModal.show()
-
-			function handleKeyPress(event) {
-				if (event.key === 'Escape') {
-					myModal.close()
-				}
-			}
-			function handleClickOutside(event) {
-				const isClickInsideImage = event.target.closest('.basicLightbox')
-				if (!isClickInsideImage) {
-					myModal.close()
-				}
-			}
-		}
-	})
 })
+
+// Додаємо слухач подій тільки один раз за межами циклу
+galleryContainer.addEventListener('click', handleGalleryClick)
+
+function handleGalleryClick(event) {
+	event.preventDefault()
+	const target = event.target
+	if (target.nodeName === 'IMG') {
+		const largeImageSrc = target.dataset.source
+		console.log('Посилання на велике зображення:', largeImageSrc)
+
+		// Оновлюємо контент модального вікна
+		modal.setContent(`<img width="1400" height="900" src="${largeImageSrc}">`)
+
+		// Показуємо модальне вікно
+		modal.show()
+	}
+}
+
+function handleKeyPress(event) {
+	if (event.key === 'Escape') {
+		modal.close()
+	}
+}
+
+function handleClickOutside(event) {
+	const isClickInsideImage = event.target.closest('.basicLightbox')
+	if (!isClickInsideImage) {
+		modal.close()
+	}
+}
